@@ -10,18 +10,23 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.io.File;
+import java.io.FileReader;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class BingFireFoxSearchTest {
     WebDriver driver;
     String query = "testing";
+    Properties properties = new Properties();
 
     @BeforeMethod
     public void setUp() throws Exception {
         System.setProperty("webdriver.gecko.driver", "/Users/irinagavrilova/Desktop/Devel/trainings/seleniumMaven/Webdriver2020/src/test/resources/drivers/macos/geckodriver");
-
+        String target = System.getProperty("target", "local");
+        properties.load(new FileReader(new File(String.format("src/test/resources/%s.properties", target))));
         driver = new FirefoxDriver();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
@@ -30,13 +35,13 @@ public class BingFireFoxSearchTest {
     }
 
     /*
-    1. Open Bing searhc in FireFox in maximum size window;
+    1. Open Bing search in FireFox in maximum size window;
     2. Enter search query in search field, press Enter;
     3. Verify, that amount of finding results more, than quantity results in the first page;
      */
     @Test
     public void testBingSearch() {
-        goTo("https://www.bing.com/");
+        goTo(properties.getProperty("web.baseBingURL"));
         search(query);
         Assert.assertTrue(getAmountResultsInTheFirstPage() <= getAmountSearchResults(), "Inconsistency amount of results: we found less search results than appeared on the search page.");
     }
